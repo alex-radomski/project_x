@@ -1,4 +1,5 @@
 from flask import Flask
+from flask import request
 
 app = Flask(__name__)
 
@@ -13,25 +14,15 @@ todo = [
 def hello_world():
     return todo
 
+@app.route("/add_todo", methods=["POST"])
+def add_todo() -> dict:
+    req = request.get_json()
+    
+    if type(req) != dict:
+        return "", 400
 
-
-
-"""
-# TODO 2 - Add a new todo to the list using POST
-@app.route("/add_to_do/<str:todo_name>", method="POST")
-def add_to_do(todo_name):
-    print(todo_name)
-
-    www.matthewray.co.uk/add_to_do/baththedog
-
-
-
-
-# TODO 2 - Add a new todo to the list using POST
-@app.route("/add_to_do", method="POST")
-def add_to_do():
-    request.get("todo_name")
-
-    www.matthewray.co.uk/add_to_do/?todo_name=baththedog
-
-"""
+    
+    
+    
+    todo.append(req)
+    return req, 201
