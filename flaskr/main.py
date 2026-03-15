@@ -1,33 +1,48 @@
-from flask import Flask
+from flask import Flask, render_template
 from flask import request
 from flask import render_template_string
 import flaskr.user_database as user_db
 import flaskr.todo_list_database as todo
 from markupsafe import escape
+from pydantic import BaseModel, ValidationError
+
 
 
 app = Flask(__name__)
 
 # [{id:name},...]
 user_db = user_db.user_db
-todo = todo.todo
 
+# [{id:int,task:name,is_done:bool},...]
+todo = [{"id": 2, "task": "Cook dinner", "is_done": False},
+        {"id": 3, "task": "Read a book", "is_done": False}]
 
+class ToDo(BaseModel):
+    id:int
+    task:str
+    is_done:bool
 
 # GET endpoint to return all todo items
 @app.route("/")
 def hello_world():
-    return todo
+    print(todo)
+    return render_template("home.html",todo_list=todo)
 
 # POST endpoint that accepts a json obj and adds it to todo
 @app.route("/add-todo", methods=["POST"])
 def add_todo() -> dict:
     req = request.get_json()
-    if type(req) != dict:
-        return "", 400
-    todo.append(req)
+    # if not isinstance(req, dict) or "is_done" not in req or "task" not in req:
+    #     return "", 400
+    try:
+        validated_request = ToDo.model_validate(req)
+    except ValidationError:
+        return "get your shit together", 422
 
-    return req, 201
+    
+    todo.append(validated_request.model_dump())
+
+    return validated_request.model_dump(), 201
 
 # GET endpoint that returns all users
 @app.route("/users")
