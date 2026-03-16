@@ -14,35 +14,44 @@ app = Flask(__name__)
 user_db = user_db.user_db
 
 # [{id:int,task:name,is_done:bool},...]
-todo = [{"id": 2, "task": "Cook dinner", "is_done": False},
+todo = [{"id": 1, "task": "Feed the dog", "is_done": True},
+        {"id": 2, "task": "Cook dinner", "is_done": False},
         {"id": 3, "task": "Read a book", "is_done": False}]
 
 class ToDo(BaseModel):
+    # model_config = {
+    #     "extra": "forbid"}
+
     id:int
     task:str
     is_done:bool
 
+class User(BaseModel):
+    id:int
+    user:str
+
 # GET endpoint to return all todo items
 @app.route("/")
 def hello_world():
-    print(todo)
-    return render_template("home.html",todo_list=todo)
+    return render_template("home.html",todo_list=todo, user_list=user_db)
 
 # POST endpoint that accepts a json obj and adds it to todo
 @app.route("/add-todo", methods=["POST"])
-def add_todo() -> dict:
+def add_todo():
     req = request.get_json()
     # if not isinstance(req, dict) or "is_done" not in req or "task" not in req:
     #     return "", 400
     try:
-        validated_request = ToDo.model_validate(req)
+        validate_request = ToDo.model_validate(req)
     except ValidationError:
         return "get your shit together", 422
+    else:
+        valid_dict = validate_request.model_dump()
 
     
-    todo.append(validated_request.model_dump())
+    todo.append(valid_dict)
 
-    return validated_request.model_dump(), 201
+    return valid_dict, 201
 
 # GET endpoint that returns all users
 @app.route("/users")
@@ -53,8 +62,19 @@ def get_users():
 @app.route("/add-user", methods=["POST"])
 def create_user():
     req = request.get_json()
-    user_db.append(req)
-    return user_db.pop(), 201
+    try:
+        validate_request = User.model_validate(req)
+    except ValidationError:
+        return "get your shit together", 422
+    else:
+        valid_dict = validate_request.model_dump()
+    
+    for user in user_db:
+        if valid_dict['id'] == user['id']:
+            return "", 422
+
+    user_db.append(valid_dict)
+    return valid_dict, 201
 
 
 

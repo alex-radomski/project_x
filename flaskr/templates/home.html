@@ -6,6 +6,7 @@
     <title>TO DOs</title>
 </head>
 <body>
+    <h1>Welcome {{ user_list["name"] }}</h1>
     <h1>To Do</h1>
 
     {% for todo in todo_list %}
@@ -14,7 +15,13 @@
 
 
     <p>{{todo["task"]}}</p>
+    <!-- <input type="checkbox" name={{ todo['is_done']  }}> -->
 
+    {% if todo["is_done"] == true %}
+        <p>✅</p>
+    {% else %}
+        <p>❌</p>
+    {% endif %}
 
     {% endfor %}
 
