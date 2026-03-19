@@ -23,12 +23,13 @@ def setup_todos():
 def test_add_todo() -> None:
     with app.test_client() as client:
         
-        add_todo_json = {"id": 3, "task": "Read a book", "is_done": False}
+        add_todo_json = {"task": "Read a book", "is_done": False}
         
         response = client.post("/add-todo", json=add_todo_json)
 
         assert response.status_code == 201
-        assert response.json == add_todo_json
+        assert response.json["task"] == "Read a book"
+        assert response.json["is_done"] == False
 
 
 
@@ -36,17 +37,18 @@ def test_add_todo() -> None:
 def test_add_todo_2() -> None:
     with app.test_client() as client:
         
-        add_todo_json = {"id": 4, "task": "Have a bath", "is_done": False}
+        add_todo_json = { "task": "Have a bath", "is_done": True}
         
         response = client.post("/add-todo", json=add_todo_json)
 
         assert response.status_code == 201
-        assert response.json == add_todo_json
+        assert response.json["task"] == "Have a bath"
+        assert response.json["is_done"] == True
 
         # get_response = client.get("/")
         # assert get_response.status_code == 200
         # assert get_response.json == [
-        #     {"id": 4, "task": "Have a bath", "is_done": False}
+        #     { "task": "Have a bath", "is_done": False}
         # ]
 
 
@@ -56,19 +58,19 @@ def test_add_todo_invalid_1() -> None:
        assert response.status_code == 422
 
 def test_add_todo_invalid_2() -> None:
-     json_request = {"id": 4, "task": "Go shopping"}
+     json_request = { "task": "Go shopping"}
      with app.test_client() as client:
        response = client.post("/add-todo", json=json_request)
        assert response.status_code == 422
     
 def test_add_todo_invalid_3() -> None:
-     json_request = {"id": 5, "is_done": False}
+     json_request = { "is_done": False}
      with app.test_client() as client:
        response = client.post("/add-todo", json=json_request)
        assert response.status_code == 422
     
 def test_add_todo_invalid_4() -> None:
-     json_request = {"id": 1,"task": "Go shopping", "is_done": False, "additional_field": "This field is not expected"}
+     json_request = {"task": "Go shopping", "is_done": False, "additional_field": "This field is not expected"}
      with app.test_client() as client:
        response = client.post("/add-todo", json=json_request)
        # 201 because pydantic will ignore extra arguments and not raise errors

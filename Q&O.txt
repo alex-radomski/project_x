@@ -1,0 +1,5 @@
+------- Next Session
+- Linting - justfile
+
+Questions:
+

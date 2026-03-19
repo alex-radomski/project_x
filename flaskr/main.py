@@ -5,6 +5,7 @@ import flaskr.user_database as user_db
 import flaskr.todo_list_database as todo
 from markupsafe import escape
 from pydantic import BaseModel, ValidationError
+import uuid
 
 
 
@@ -14,15 +15,15 @@ app = Flask(__name__)
 user_db = user_db.user_db
 
 # [{id:int,task:name,is_done:bool},...]
-todo = [{"id": 1, "task": "Feed the dog", "is_done": True},
-        {"id": 2, "task": "Cook dinner", "is_done": False},
-        {"id": 3, "task": "Read a book", "is_done": False}]
+todo = [{"id": "fe8fc3f6-29fc-400c-9ec1-77557417e811", "task": "Feed the dog", "is_done": True},
+        {"id": "d157cbe5-4242-446a-9dea-896747f24c52", "task": "Cook dinner", "is_done": False},
+        {"id": "982d4092-455a-49f4-8d5f-f58df7341d08", "task": "Read a book", "is_done": False}]
 
 class ToDo(BaseModel):
     # model_config = {
     #     "extra": "forbid"}
 
-    id:int
+    id:str
     task:str
     is_done:bool
 
@@ -39,14 +40,17 @@ def hello_world():
 @app.route("/add-todo", methods=["POST"])
 def add_todo():
     req = request.get_json()
-    # if not isinstance(req, dict) or "is_done" not in req or "task" not in req:
-    #     return "", 400
+
     try:
-        validate_request = ToDo.model_validate(req)
-    except ValidationError:
+        todo_req = ToDo(
+            id = str(uuid.uuid4()),
+            task = req["task"],
+            is_done = req["is_done"]
+        )
+    except (ValidationError, TypeError, KeyError):
         return "get your shit together", 422
     else:
-        valid_dict = validate_request.model_dump()
+        valid_dict = todo_req.model_dump()
 
     
     todo.append(valid_dict)
