@@ -9,10 +9,17 @@
     <h1>Welcome {{ user_list["name"] }}</h1>
     <h1>To Do</h1>
 
+    <form action="http://localhost:5000/add-todo" method="POST" >
+        <label for="task">Name: </label><br>
+        <input type="text" id="" name="task" placeholder="Jane Doe">
+        <label for="is_done">Done?: </label><br>
+        <input type="checkbox" id="" name="is_done" placeholder="hope yes">
+
+
+        <input type="submit" value="Submit">
+    </form>
+
     {% for todo in todo_list %}
-
-   
-
 
     <p>{{todo["task"]}}</p>
     <!-- <input type="checkbox" name={{ todo['is_done']  }}> -->
